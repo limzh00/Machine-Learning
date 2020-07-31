@@ -1,110 +1,110 @@
 import numpy as np
+from collections import Iterable
 
-class kdNode:
+class kdNode(object):
     # constructor
-    def __init__(self, data = None, depth = 0, div = 0, father = None, left = None, right = None):
-        self.data = data # n-dimention vector
-        self.depth = depth # depth in tree
-        self.div = div # divided dimention
+    def __init__(self, feature = None, div = 0, father = None, left = None, right = None):
+        self.feature = feature # n-dimension vector
+        self.div = div # divided dimension
         self.father = father # father
         self.left = left # left child
         self.right = right # right child
+        self.isvisited = False
 
+
+
+class kdTree(object):
+    # constructor
+    def __init__(self, data = ()):
+        assert isinstance(data, Iterable)
+        self.root = kdNode()
+        self.data = data
     # build a kdTree   
-    def build_tree(self, dataset, depth):
+    def build(self, node, dataset, div): 
         # return if no data
-        if not len(dataset):
-            return
-        # get the divided dimention by depth
-        dim = len(dataset[0])
-        div = depth % dim
+        if not len(dataset): return
         # sort the data according to the number in divided dimention
         dataset.sort(key = lambda x:x[div])
         # find the median point
-        median_index = len(dataset) // 2
-        self.data = dataset[median_index]
+        median_index = (len(dataset) - 1) // 2
+        node.feature = dataset[median_index]
         # build subtrees
-        self.left = kdNode(None, depth + 1, div, self)
-        self.right = kdNode(None, depth + 1, div, self)
-        self.left.build_tree(dataset[:median_index], depth + 1)
-        self.right.build_tree(dataset[median_index + 1:], depth + 1)
+        node.left = kdNode(div = (div + 1) % len(self.data[0]), father = node)
+        node.right = kdNode(div = (div + 1) % len(self.data[0]), father = node)
+        self.build(dataset = dataset[:median_index], node = node.left, div = node.left.div)
+        self.build(dataset = dataset[median_index + 1:], node = node.right, div = node.right.div)
     
     # an preorder traversal function to check the tree
-    def pre_traversal(self):
-        if not self.data:
+    def pre_traversal(self, node):
+        if node.feature == None: 
             return
-        print(self.data, self.depth)
-        self.left.pre_traversal()
-        self.right.pre_traversal()
-
-class kdTree:
-    # constructor
-    def __init__(self, data = None, depth = 0, father = None, left = None, right = None):
-        self.root = kdNode(data, depth, father, left, right)
+        print(node.feature, node.div)
+        self.pre_traversal(node.left)
+        self.pre_traversal(node.right)
     
-    # build a kdTree
-    def build_tree(self, dataset, depth = 0):
-        self.root.build_tree(dataset, depth)
-    
-    # preorder traversel
-    def tree_pre_traversal(self):
-        self.root.pre_traversal()
+    def find_k_neighbors(self, neighbors, k, point):
+        node = self.find_leaf(point)
+        self.enter_neighbors(neighbors, k, point, node)
 
-# find the max distance in current neighbors
-def curr_max_dist(point, l):
-    # initialize the parameters
-    total = len(l)
-    curr_max = 0
-    max_dist_index = -1
-    for i in range(total):
-        # compute the distance of each neighbor
-        dist = (( (np.array(point) - np.array(l[i]) )**2).sum())**0.5
-        # find the maximum
-        if dist > curr_max:
-            # update the maximum and the index
-            curr_max = dist
-            max_dist_index = i
 
-    return curr_max, max_dist_index
+        # end
+        while (up == 1)
+            if node == self.root: 
+                return
+            else:
+                up = self.up_or_down(neighbors, k, point, node)
 
-# find k closest neighbors
-def find_k_neighbors(point, root, k, neighbors):
-    # start from the root node
-    curr_root = root
-    # continue until reaching the bottom node
-    while curr_root.left or curr_root.right:
-        if point[curr_root.div] < curr_root.data[curr_root.div]:
-            curr_root = curr_root.left
+
+
+    def up_or_down(self, neighbors, k, point, node):
+        while node.isvisited == True:
+            node = node.father
+        self.enter_neighbors(neighbors, k, point, node)
+        dist_to_line = abs(point[node.div] - node.feature[node.div]) 
+        distances = [self.distance(point, neighbors[i]) for i in range(len(neighbors))]
+        max_dist = max(distances)
+
+        
+        if dist_to_line >= max_dist and len(neighbors) == k:
+            return 1 #up
         else:
-            curr_root = curr_root.right
-    # add current node to neighbors if it isn't full
-    if len(neighbors) < k:
-        neighbors.append(curr_root.data)
-    # replace the node with the maximum distance if the current one is closer
-    else:
-        max_dist, max_dist_index = curr_max_dist(point, neighbors)
-        curr_dist = (( (np.array(point) - np.array(curr_root.data) )**2).sum())**0.5
-        if(max_dist > curr_dist):
-            neighbors[max_dist_index] = curr_root.data
-    #
-    #
-    #
-    #
-    # how to mark the visited points?
-    #
-    #
-    #
-    #
+            if node.left.isvisited == False:
+                find_k_neighbors(neighbors, k, point)
 
+
+            
+
+    def enter_neighbors(self, neighbors, k, point, node):
+        node.isvisited = True
+        distances = [self.distance(point, neighbors[i]) for i in range(len(neighbors))]
+        max_dist = max(distances)
+        max_index = np.argmax(np.array(distances))
+        if len(neighbors) < k:
+            neighbors.append(node.feature)
+        else:
+            if self.distance(point, node.feature) < max_dist:
+                neighbors[max_index] = node.feature        
+
+    def find_leaf(self, point):
+        node = self.root
+        while(True):
+            if(point[node.div] < node.feature[node.div]):
+                if node.left.feature is None: return node
+                node = node.left
+            else:
+                if node.right.feature is None: return node
+                node = node.right
+    def distance(self, point, feature):
+        res = 0
+        for i in range(len(point)):
+            res += (point[i] - feature[i])**2
+        return np.sqrt(res)
 
 if __name__ == "__main__":
+    dataset = [(6.27,5.5),(1.24,-2.86),(17.05, -12.79),(-6.88, -5.40),(-2.96, -0.5), (7.75, -22.68),(10.8, -5.03),(-4.6,-10.55), (-4.96, 12.61), (1.75,12.26), (15.31, -13.16), (7.83, 15.70), (14.63, -0.35)]
     # check the tree-building
-    kd_tree = kdTree()
-    points = [[2,3],[5,4],[9,6],[4,7],[8,1],[7,2]]
-    kd_tree.build_tree(points)
-    kd_tree.tree_pre_traversal()
-
-    # neighbors = []
-    # find_k_neighbors(point, kd_tree.root, neighbors)
-
-    
+    kd_tree = kdTree(data = dataset)
+    kd_tree.build(kd_tree.root, kd_tree.data, kd_tree.root.div)
+    kd_tree.pre_traversal(kd_tree.root)
+    node = kd_tree.find_leaf((-1,-5))
+    print(node.feature)
