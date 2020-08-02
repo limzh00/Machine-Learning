@@ -148,13 +148,52 @@ if __name__ == '__main__':
     main() 
 ```
 
-### 2.6 结果
+### 2.7 结果
 
 <img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\sklearn_1.png" style="zoom: 33%;" />
 
+## Section3. 性能评估与超参数优化
 
+在以上的实践中，我们做到了使用数据D在分类任务T中获得性能结果，但我们需要对该性能进行评估，并依照评估结果优化超参数K。因为当K过小，对噪音敏感，过拟合；K过大，则欠拟合。选取合适的K值对于分类器性能的好坏至关重要。
+
+因此我们需要性能评估机制，引入测试集的概念进行超参数优化。
+
+### 3.1  对不同K的模型的准确度进行评价
+
+```python
+    # To find the best K we should test the result at test set:
+    K = np.arange(1,10) # [1,10)
+    test_accuracy = np.zeros(len(K))
+    train_accuracy = np.zeros(len(K))
+    res = []
+    for i, k in enumerate(tqdm(K)):
+        # 3. generate classifier
+        clf = neighbors.KNeighborsClassifier(n_neighbors=k, weights='distance')
+        # 4. fit clf with trained-data
+        clf.fit(x_train, y_train)
+        # 5. predict P with fitted classifier and get the result Z full of prediected value
+        Z = clf.predict(P) # note that it requires P is a vector of 1 dimension
+        # push in res list
+        res.append(Z)
+        # evaluate
+        train_accuracy[i] = clf.score(x_train, y_train)
+        test_accuracy[i] = clf.score(x_test, y_test)
+```
+
+注: `model.score()`的含义参见附录
+
+
+
+
+
+### 3.2 结果
+
+![](F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\Figure_3.png)
+
+![](F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\Figure_4.png)
 
 ## 附录
 
 ### 1. [sklearn库的结构](https://blog.csdn.net/algorithmPro/article/details/103045824?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param)
 
+### 2.[ model.score()的含义]( https://zhuanlan.zhihu.com/p/68741207 )
