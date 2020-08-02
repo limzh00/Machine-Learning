@@ -16,6 +16,7 @@ from sklearn.datasets import  make_classification
 from sklearn import  neighbors, datasets
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
+from datetime import datetime
 
 def main():
     # 1. generate samples. 200 samples for which are of two dims, 3-classes labels. note that dont mess up 'class' with 'cluster'
@@ -60,7 +61,7 @@ def main():
         plt.scatter(x_train[:,0], x_train[:,1], c=y_train, cmap=color_bold)
         # add title
         plt.title(f'sklearn-{i+1}NN')
-    plt.show()
+    plt.savefig('../img/fig2.png', format='png')
 
     # 7. plot the scores
     plt.figure()
@@ -70,8 +71,11 @@ def main():
     plt.legend()
     plt.xlabel('Numbero of neighbors')
     plt.ylabel('Accuracy')
-    plt.show()
-
+    plt.savefig('../img/fig1.png', format='png')
     
 if __name__ == '__main__':
+    # timing
+    start = datetime.now()
     main()
+    end = datetime.now()
+    print(end - start)

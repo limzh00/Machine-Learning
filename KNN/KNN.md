@@ -192,6 +192,10 @@ if __name__ == '__main__':
 
 ![](F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\Figure_4.png)
 
+## Section4. 动手实践: 蛮力版KNN算法
+
+### 4.1
+
 ## 附录
 
 ### 1. [sklearn库的结构](https://blog.csdn.net/algorithmPro/article/details/103045824?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param)
