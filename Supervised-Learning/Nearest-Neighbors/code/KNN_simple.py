@@ -81,11 +81,6 @@ class KNeighborsClassifier_simple(object):
         y_predicted = self.predict(X)
         res = np.sum(y_predicted == y ) / len(y)
         return res
-    def score(self, X, y, Z):
-        '''score with predicted data'''
-        y_predicted = Z
-        res = np.sum(y_predicted == y) / len(y)
-        return res
 
 # same as KNN_sklearn_test.py
 def KNN_sklearn(X, y):
