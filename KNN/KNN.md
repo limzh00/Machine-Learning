@@ -370,10 +370,179 @@ class KNeighborsClassifier_simple(object):
 ### 5.1 构造平衡kd树
 
 ```python
+class Node(object):
+    def __init__(self, feature = None, father = None, l_node = None, r_node = None, div = 0, visited = False):
+        self.feature = feature
+        self.father = father
+        self.l_node = l_node
+        self.r_node = r_node
+        self.div = div
+        self.visited = visited
+
+class kdTree(object):
+    def __init__(self, X, dim):
+        assert X is not None and len(X) != 0
+        self.root = Node(div = 0)
+        self.dim = dim
+        self.samples = X
+        self.__build(self.root, list(self.samples))
+    def __build(self, node, X):
+        # return conditions
+        if len(X) == 1: node.feature = X[0]; return
+        X.sort(key = lambda x: x[node.div]) # note: X is a list before __build calls.
+        # update feature
+        node.feature = X[len(X) // 2]
+        # create nodes: leaves do not have children
+        if len(X[:len(X)//2]):
+            node.l_node = Node(father = node, div = (node.div+1) % self.dim)
+            self.__build(node.l_node, X[:len(X)//2])
+        if len(X[len(X)//2 + 1:]):
+            node.r_node = Node(father = node, div = (node.div+1) % self.dim)
+            self.__build(node.r_node, X[len(X)//2 + 1:])
+        return
+    def search(self, p, node):
+        if p[node.div] < node.feature[node.div] and node.l_node is not None: return self.search(p, node.l_node)
+        else: return node
+        if p[node.div] >= node.feature[node.div] and node.r_node is not None: return self.search(p, node.r_node)
+        else: return node
+            
 
 ```
 
+### 5.2 kd树版最近邻（递归）
 
+#### 利用kd树的最近邻搜索
+
+输入：已构造的kd树；测试样本点x；
+
+输出：x的最近邻
+
+1. 在kd树中找到包含测试样本点x的叶节点： 从根节点出发，递归向下访问kd树。若目标点当前维的坐标小于切分点的坐标，则移动到左子节点，否则移动到右子节点。直到子节点为叶节点为止
+2. 将搜索到的叶节点作为“当前最近点”
+3. 递归地向上回退，并在每个节点上进行以下操作： a. 如果该节点保存的训练样本点比当前最近点距离测试样本点还近，则将该训练样本点作为“当前最近点” b. 当前最近点一定存在于该节点一个子节点对应的区域。检查该子节点的父节点的另一个子节点对应的区域是否有更近的点。具体地说，就是当前区域是否与以测试样本点为球心，测试样本点与“当前最近点”的距离为半径的超球体相交。 如果相交，则可能在另一个子节点对应的区域内存在距离测试样本点更近的点，算法移动到另一个子节点，进行最近邻搜索 如不相交，则算法向上回退
+4. 回退到根节点时，搜索结束，最后的“当前最近点”即为x的最近邻点。
+
+如果，训练样本点是随机分布的，那么kd树搜索的平均计算复杂度就是O(logN)O(logN)。kd树更适用于训练样本数远大于空间维数时的k近邻搜索。当空间维数接近训练样本数时，它的效率会迅速下降，几乎接近线性扫描。
+
+### 5.3 完整代码
+
+```python
+class KNeighborsClassifier(object):
+    def __init__(self, n_neighbors, weights = 'distance'):
+        self.samples = None
+        self.dim = None
+        self.tree = None
+        self.K = n_neighbors
+        self.weights = weights
+        # original data
+        self.X = None
+        self.y = None
+        # k neighbors array
+        self.neighbors = []
+    def __decision_rules(self, neighbors):
+        '''For a to-be-classified point, this function decides its class based on k-neighbors of it. 
+        return the label predicted.'''
+        labels = np.zeros(len(set(self.y)))
+        for i, neighbor in enumerate(neighbors):
+            if neighbor[-1] == 0: return neighbor[-2]
+            labels[int(neighbor[-2])] += 1 / neighbor[-1]
+        return np.argmax(labels)       
+    def __distance(self, x, p):
+        # it is required the x and p are type of ndarray
+        res = np.sum((x - p)**2)
+        return np.power(res, 1 / self.dim)
+    def __find_k_neighbors(self, node, neighbors, p):
+        # note that, neighbors should be in order now.
+
+        # Given a node, we technically do three things:
+        # 1. check whether we should involve this node in
+        # 2. figure out in which node we forward our recursion, node.father or node.child?
+        # 3. check ending condition
+
+        # firstly, set node visited.
+        node.visited = True
+        node.feature[-1] = self.__distance(node.feature[:-2], p)
+        # 1. neighbors updates
+        # if k < self.K, we just add it into neighbors
+        if len(self.neighbors) < self.K: self.neighbors.append(node.feature)
+        # else, check whether involve it in neighors
+        elif node.feature[-1] < self.neighbors[-1][-1]: 
+            self.neighbors[-1] = node.feature
+            self.neighbors.sort(key = lambda x: x[-1])
+        # 2. node to be forwarded towards
+        # if neighbors is full
+        # enter node father
+        if abs(node.feature[node.div] - p[node.div]) >= self.neighbors[-1][-1] and len(self.neighbors) >= self.K:
+            if node.father is not None and node.father.visited is False: 
+                self.__find_k_neighbors(node.father, self.neighbors, p)
+            node.visited = False
+            return
+        else:
+            if node.l_node is not None and node.l_node.visited is False: 
+                self.__find_k_neighbors(node.l_node, neighbors, p)
+            if node.r_node is not None and node.r_node.visited is False: 
+                self.__find_k_neighbors(node.r_node, neighbors, p)
+            if node.father is not None and node.father.visited is False: 
+                self.__find_k_neighbors(node.father, neighbors, p)
+            # note: before return, set visited false
+            node.visited = False
+            return
+    def __predict_point(self, p):
+        '''P is just a point, only one data to be classified'''
+        # note: neighbors should always be a list.
+        self.neighbors = []
+        node = self.tree.search(p, self.tree.root)
+        self.__find_k_neighbors(node, self.neighbors, p)
+        # print(self.neighbors)
+        return self.__decision_rules(self.neighbors)
+    def fit(self, X, y):
+        assert len(X) == len(y) and len(X)
+        # combinate X and y, add one more dim for distance and done.
+        # note: this operation can avoid the error that X is one dimensional
+        self.samples = np.c_[X, y]
+        self.samples = np.c_[self.samples, np.zeros(len(self.samples))]
+        # dim
+        self.dim = len(X[0])
+        # kd-Tree
+        self.tree = kdTree(self.samples, self.dim)
+        # original data
+        self.X = X
+        self.y = y
+        return         
+    def predict(self, P):
+        '''Given P, output prediected result Z.'''
+        # note that P is required to be one-dimensional vector
+        # the result initialization
+        res = np.zeros(len(P))    
+        for i, p in enumerate(P):
+            res[i] = self.__predict_point(p)
+        return res
+    def score(self, X, y):
+        y_predicted = self.predict(X)
+        return np.sum(y_predicted == y) / len(y)
+```
+
+### 5.4 结果比较
+
+#### 5.4.1 图
+
+<center class="half" >
+    <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig_sklearn_7.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig_kdTree_7.png" width = 400> 
+</center>
+
+#### 5.4.2 准确率
+
+<center class="half" >
+    <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig_sklearn_8.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig_kdTree_8.png" width = 400> 
+</center>
+
+#### 5.4.3 时间复杂度
+
+| 版本    | 数据规模                                    | 时间       |
+| ------- | ------------------------------------------- | ---------- |
+| sklearn | 数据集，200 x 2. 待预测集, 10000, K： 1 - 9 | 0:00:01.44 |
+| simple  | 数据集，200 x 2. 待预测集, 10000. K： 1 - 9 | 0:01:09.12 |
+| kdTree  | 数据集，200 x 2. 待预测集, 10000. K： 1 - 9 | 0:00:30.59 |
 
 ## 附录
 

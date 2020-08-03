@@ -12,7 +12,6 @@ import scipy as sp
 import matplotlib.pyplot as plt 
 from matplotlib.colors import ListedColormap
 from sklearn.datasets import  make_classification
-from sklearn import datasets, neighbors
 from sklearn import  neighbors, datasets
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm

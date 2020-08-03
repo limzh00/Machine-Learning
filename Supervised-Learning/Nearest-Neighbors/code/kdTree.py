@@ -21,10 +21,10 @@ class kdTree(object):
         # update feature
         node.feature = X[len(X) // 2]
         # create nodes: leaves do not have children
-        if not len(X[:len(X)//2]):
+        if len(X[:len(X)//2]):
             node.l_node = Node(father = node, div = (node.div+1) % self.dim)
             self.__build(node.l_node, X[:len(X)//2])
-        if not len(X[len(X)//2 + 1:]):
+        if len(X[len(X)//2 + 1:]):
             node.r_node = Node(father = node, div = (node.div+1) % self.dim)
             self.__build(node.r_node, X[len(X)//2 + 1:])
         return

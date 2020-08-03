@@ -15,6 +15,7 @@ from matplotlib.colors import ListedColormap
 from datetime import datetime
 from tqdm import tqdm
 from sklearn.datasets import make_classification
+from sklearn import datasets, neighbors
 from kdTree import kdTree
 from sklearn.model_selection import train_test_split
 
@@ -28,6 +29,8 @@ class KNeighborsClassifier(object):
         # original data
         self.X = None
         self.y = None
+        # k neighbors array
+        self.neighbors = []
     def __decision_rules(self, neighbors):
         '''For a to-be-classified point, this function decides its class based on k-neighbors of it. 
         return the label predicted.'''
@@ -53,17 +56,17 @@ class KNeighborsClassifier(object):
         node.feature[-1] = self.__distance(node.feature[:-2], p)
         # 1. neighbors updates
         # if k < self.K, we just add it into neighbors
-        if len(neighbors) < self.K: neighbors.append(node.feature)
+        if len(self.neighbors) < self.K: self.neighbors.append(node.feature)
         # else, check whether involve it in neighors
-        if node.feature[-1] < neighbors[-1][-1]: 
-            neighbors[-1] = node.feature
-            neighbors.sort(key = lambda x: x[-1])
+        elif node.feature[-1] < self.neighbors[-1][-1]: 
+            self.neighbors[-1] = node.feature
+            self.neighbors.sort(key = lambda x: x[-1])
         # 2. node to be forwarded towards
         # if neighbors is full
         # enter node father
-        if abs(node.feature[node.div] - p[node.div]) >= neighbors[-1][-1] and len(neighbors) >= self.K:
+        if abs(node.feature[node.div] - p[node.div]) >= self.neighbors[-1][-1] and len(self.neighbors) >= self.K:
             if node.father is not None and node.father.visited is False: 
-                self.__find_k_neighbors(node.father, neighbors, p)
+                self.__find_k_neighbors(node.father, self.neighbors, p)
             node.visited = False
             return
         else:
@@ -79,10 +82,11 @@ class KNeighborsClassifier(object):
     def __predict_point(self, p):
         '''P is just a point, only one data to be classified'''
         # note: neighbors should always be a list.
-        neighbors = []
+        self.neighbors = []
         node = self.tree.search(p, self.tree.root)
-        self.__find_k_neighbors(node, neighbors, p)
-        return self.__decision_rules(neighbors)
+        self.__find_k_neighbors(node, self.neighbors, p)
+        # print(self.neighbors)
+        return self.__decision_rules(self.neighbors)
     def fit(self, X, y):
         assert len(X) == len(y) and len(X)
         # combinate X and y, add one more dim for distance and done.
@@ -213,7 +217,7 @@ def KNN_kdTree(X, y):
 
     # 7. plot the scores
     plt.figure()
-    plt.title('K-NN varying number of neighbors')
+    plt.title('K-NN varying number of neighbors: kdTree')
     plt.plot(K, train_accuracy, label = 'Training accuracy of kdTree version')
     plt.plot(K, test_accuracy,  label = 'Testing accuracy of kdTree version')
     plt.legend()
