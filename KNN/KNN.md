@@ -188,13 +188,159 @@ if __name__ == '__main__':
 
 ### 3.2 结果
 
-![](F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\Figure_3.png)
+<center class="half">
+    <img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\Figure_3.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\Figure_4.png"  width = 400>
+</center>
 
-![](F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\Figure_4.png)
+
 
 ## Section4. 动手实践: 蛮力版KNN算法
 
-### 4.1
+### 4.1 仿sklearn接口一览
+
+我们需要实现一个分类器类，并模仿sklearn的风格为其创建接口。这样做是为了增加分类器的拓展性。
+
+```python
+class KNeighborsClassifier_simple(object):
+    def __init__(self, n_neighbors =15, weights = 'distance'):
+        pass
+    def predict(self, P):
+		pass
+    def fit(self, X, y):
+        pass
+    def score(X, y):
+		pass
+```
+
+初始化的时候，需要传入权重属性和K两个超参数。`fit(X, y)`接受训练集的样本数据及其标签集， 在fit中进行拟合，学习模型。`predict(P)`接受待预测点集合P， 输出一个$1 \times len(P)$的标签集合作为结果. `score(X, y)`接受测试集，对相应超参数的情形下模型的精度进行评估。
+
+除此之外，KNN算法的三大元素： 距离算法， 权重算法（分类决策规则）， K的选择中，距离算法和权重算法需要从`predict(self, P)`中剥离出来，以方便替换. 而 K的选择则通过简单交叉验证在主函数中得到即可。
+
+故而，最后我们得到的完整接口列表是：
+
+```python
+class KNeighborsClassifier_simple(object):
+    def __init__(self, n_neighbors =15, weights = 'distance'): pass
+    def __output(self, neighbors): pass
+    def __distance(self, x, p): pass
+    def __predict_point(self, p): pass
+    def predict(self, P): pass
+    def fit(self, X, y): pass
+    def score(X, y): pass
+    def score(X, y, Z): pass
+```
+
+在蛮力版KNN算法中，距离算法选用欧氏距离，分类决策规则使用多数投票规则加距离权重。而最重要的，在`__prediect_point(self, p)`中，k neighbors的寻找采用蛮力排序算法。
+
+### 4.2 完整代码
+
+```python
+class KNeighborsClassifier_simple(object):
+    def __init__(self, n_neighbors = 15, weights = 'distance'):
+        self.n_neighbors = n_neighbors
+        self.weights = weights
+        # original data
+        self.X = None
+        self.y = None
+        # combination of samples
+        self.samples = None
+        self.dim = None
+
+    def __distance(self, x, p):
+        '''distance algorithm'''
+        res = 0
+        for i in range(self.dim):
+            res += (x[i] - p[i]) ** 2
+        # n root
+        return np.power(res, 1 / self.dim)
+
+    def __output(self, neighbors):
+        '''When K neighbors array already, output labels'''
+        # given neigbors array, output prediected label
+        n_labels = len(set(self.y))
+        labels = np.zeros(n_labels)
+        # count num based on distance
+        for i in neighbors:
+            if i[-1] != 0: labels[int(i[-2])] += 1/ i[-1] 
+            else: labels[int(i[-2])] += 1e9
+        return np.argmax(labels)   
+
+    def __predict_point(self, p):
+        '''predict one point'''
+        # brute-forcely calculate distance
+        for i in range(len(self.samples)):
+            self.samples[i][-1] = self.__distance(self.samples[i], p)
+        # sort and find k neighbors 
+        ord = list(self.samples.copy())
+        ord.sort(key = lambda x: x[-1])
+        ord = np.array(ord)
+        neighbors = ord[:self.n_neighbors]
+        # predict the res
+        return self.__output(neighbors)
+
+    def fit(self, X, y):
+        assert len(X) == len(y) and len(X) != 0
+        # X, y
+        self.X = X
+        self.y = y
+        # get dim
+        self.dim = len(X[0])
+        self.samples = np.c_[X, y]
+        distances = np.zeros(len(self.samples), dtype = float)
+        # add one more dim in samples for distance
+        self.samples = np.c_[self.samples, distances]
+    def predict(self, P):
+        res = np.zeros(len(P))
+        for i, p in enumerate(P):
+            res[i] = self.__predict_point(p)
+        return res
+    def score(self, X, y):
+        '''score without predicted data'''
+        y_predicted = self.predict(X)
+        res = np.sum(y_predicted == y ) / len(y)
+        return res
+    def score(self, X, y, Z):
+        '''score with predicted data'''
+        y_predicted = Z
+        res = np.sum(y_predicted == y) / len(y)
+        return res
+```
+
+### 4.3 复杂度分析
+
+假设样本空间的维度是 $r$, 数据集的大小是 $p$, 预测输入的大小是 $n$. 那么对于预测输入的每一个预测点，都要对数据集的所有点进行一次距离计算，这意味着 $O(r \cdot n \cdot p)$的时间复杂度, 而对于每一个点，计算完和每一个数据集点的距离之后都要进行一次排序来找到k个邻居，这意味着 $O(n \cdot logn)$的时间复杂度。最后，决策分类规则要对K个邻居的标签进行处理，需要$O(n \cdot k)$的时间复杂度。所以，蛮力算法的时间复杂度为 $O(n \cdot (r \cdot p + n \cdot logn + k))$. 这意味着，至少需要 $O(n^2logn)$ 。
+
+### 4.4 结果比较
+
+选取数据集 200 x 2， 待预测点集合规模10000左右, 有以下结果。
+
+#### 4.4.1 图
+
+<center class="half" >
+    <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig3.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig5.png" width = 400> 
+</center>
+
+
+
+### 4.4.2 准确度
+
+<center class="half">
+<center class = "half">
+    <img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig4.png" width = "400"/>  <img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig6.png" width = "400"/>
+</center>
+
+### 4.4.3 运行时间
+
+|  版本   |                  数据规模                   |    时间    |
+| :-----: | :-----------------------------------------: | :--------: |
+| sklearn | 数据集，200 x 2. 待预测集, 10000. K： 1 - 9 | 0:00:01.44 |
+| simple  | 数据集，200 x 2. 待预测集, 10000. K： 1 - 9 | 0:01:09.12 |
+
+不难看出，simple版本的效率远远慢于sklearn. 其原因主要是对K邻居的检索和强制性地，对待预测集中每一个点都要进行的距离计算。
+
+## Section5. 动手实践： kdTree版KNN算法
+
+
 
 ## 附录
 
