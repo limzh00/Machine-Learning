@@ -16,7 +16,7 @@ from datetime import datetime
 from tqdm import tqdm
 from sklearn.datasets import make_classification
 from sklearn import datasets, neighbors
-from kdTree import kdTree
+from module.kdTree import kdTree
 from sklearn.model_selection import train_test_split
 
 class KNeighborsClassifier(object):
