@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
 ### 2.7 结果
 
-<img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\sklearn_1.png" style="zoom: 33%;" />
+<img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\KNN\img\sklearn_1.png" style="zoom: 33%;" />
 
 ## Section3. 性能评估与超参数优化
 
@@ -189,7 +189,7 @@ if __name__ == '__main__':
 ### 3.2 结果
 
 <center class="half">
-    <img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\Figure_3.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\Figure_4.png"  width = 400>
+    <img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\KNN\img\Figure_3.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\KNN\img\Figure_4.png"  width = 400>
 </center>
 
 
@@ -317,7 +317,7 @@ class KNeighborsClassifier_simple(object):
 #### 4.4.1 图
 
 <center class="half" >
-    <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig3.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig5.png" width = 400> 
+    <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\KNN\img\fig3.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\KNN\img\fig5.png" width = 400> 
 </center>
 
 
@@ -326,8 +326,9 @@ class KNeighborsClassifier_simple(object):
 
 <center class="half">
 <center class = "half">
-    <img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig4.png" width = "400"/>  <img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig6.png" width = "400"/>
+    <img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\KNN\img\fig4.png" width = "400"/>  <img src="F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\KNN\img\fig6.png" width = "400"/>
 </center>
+
 
 ### 4.4.3 运行时间
 
@@ -527,13 +528,13 @@ class KNeighborsClassifier(object):
 #### 5.4.1 图
 
 <center class="half" >
-    <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig_sklearn_7.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig_kdTree_7.png" width = 400> 
+    <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\KNN\img\fig_sklearn_7.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\KNN\img\fig_kdTree_7.png" width = 400> 
 </center>
 
 #### 5.4.2 准确率
 
 <center class="half" >
-    <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig_sklearn_8.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\img\fig_kdTree_8.png" width = 400> 
+    <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\KNN\img\fig_sklearn_8.png" width = 400> <img src = "F:\MyGithubs\Machine-Learning\Supervised-Learning\Nearest-Neighbors\KNN\img\fig_kdTree_8.png" width = 400> 
 </center>
 
 #### 5.4.3 时间复杂度
