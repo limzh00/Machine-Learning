@@ -29,8 +29,10 @@ class kdTree(object):
             self.__build(node.r_node, X[len(X)//2 + 1:])
         return
     def search(self, p, node):
-        if p[node.div] < node.feature[node.div] and node.l_node is not None: return self.search(p, node.l_node)
-        else: return node
-        if p[node.div] >= node.feature[node.div] and node.r_node is not None: return self.search(p, node.r_node)
-        else: return node
+        if p[node.div] < node.feature[node.div]:
+            if node.l_node is not None: return self.search(p, node.l_node)
+            return node
+        if p[node.div] >= node.feature[node.div]:
+            if node.r_node is not None: return self.search(p, node.r_node)
+            return node
             

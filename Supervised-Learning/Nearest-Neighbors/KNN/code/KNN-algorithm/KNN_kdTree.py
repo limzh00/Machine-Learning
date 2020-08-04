@@ -157,7 +157,7 @@ def KNN_sklearn(X, y):
         plt.scatter(x_train[:,0], x_train[:,1], c=y_train, cmap=color_bold)
         # add title
         plt.title(f'sklearn-{i+1}NN')
-    plt.savefig('../img/fig_sklearn_7.png', format='png')
+    plt.savefig('./fig_sklearn_7.png', format='png')
 
     # 7. plot the scores
     plt.figure()
@@ -167,7 +167,7 @@ def KNN_sklearn(X, y):
     plt.legend()
     plt.xlabel('Number of neighbors')
     plt.ylabel('Accuracy')
-    plt.savefig('../img/fig_sklearn_8.png', format='png')
+    plt.savefig('./fig_sklearn_8.png', format='png')
 
 
 def KNN_kdTree(X, y):
@@ -213,7 +213,7 @@ def KNN_kdTree(X, y):
         plt.scatter(x_train[:,0], x_train[:,1], c=y_train, cmap=color_bold)
         # add title
         plt.title(f'kdTree-{i+1}NN')
-    plt.savefig('../img/fig_kdTree_7.png', format='png')
+    plt.savefig('./fig_kdTree_7.png', format='png')
 
     # 7. plot the scores
     plt.figure()
@@ -223,7 +223,7 @@ def KNN_kdTree(X, y):
     plt.legend()
     plt.xlabel('Number of neighbors')
     plt.ylabel('Accuracy')
-    plt.savefig('../img/fig_kdTree_8.png', format='png')
+    plt.savefig('./fig_kdTree_8.png', format='png')
 
 def main():
     # 1. generate samples. 200 samples for which are of two dims, 3-classes labels. note that dont mess up 'class' with 'cluster'
