@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd 
 import scipy as sp 
 import sys
+import cv2
 sys.path.append('..')
 from keras.datasets import mnist
 from module.kdTree import kdTree
@@ -22,11 +23,16 @@ def main():
     x_test  = x_test.reshape(len(x_test), img_height * img_width)
     # 3. classifier 
     clf = neighbors.KNeighborsClassifier(n_neighbors=10, weights='distance', algorithm='kd_tree')
-    clf.fit(x_train, y_train)
+    clf.fit(x_train[:10000], y_train[:10000])
     # 4. predict
-    accuracy = clf.score(x_test[:100], y_test[:100])
+    # -- load custom_data
+    img = cv2.imread('custom_set/5_preprocess.png', 0)
+    # accuracy = clf.score(x_test[:100], y_test[:100])
+    img = img.reshape(1, img_height * img_width)
+    z = clf.predict(img)
+    print(z)
     end = datetime.now()
-    print(accuracy)
+    # print(accuracy)
     print(end - start)
 
 if __name__ == '__main__':
