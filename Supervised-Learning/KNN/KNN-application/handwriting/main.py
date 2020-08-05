@@ -10,6 +10,9 @@ from module.kdTree import kdTree
 from sklearn import neighbors
 from datetime import datetime
 
+# self-defined data_processor
+from DataProcessor import DataProcessor
+
 def main():
     start = datetime.now()
     # 1. load data
@@ -22,15 +25,19 @@ def main():
     x_train = x_train.reshape(len(x_train), img_height * img_width)
     x_test  = x_test.reshape(len(x_test), img_height * img_width)
     # 3. classifier 
-    clf = neighbors.KNeighborsClassifier(n_neighbors=10, weights='distance', algorithm='kd_tree')
-    clf.fit(x_train[:10000], y_train[:10000])
+    clf = neighbors.KNeighborsClassifier(n_neighbors=10, weights='uniform')
+    clf.fit(x_train[:], y_train[:])
     # 4. predict
     # -- load custom_data
-    img = cv2.imread('custom_set/5_preprocess.png', 0)
-    # accuracy = clf.score(x_test[:100], y_test[:100])
-    img = img.reshape(1, img_height * img_width)
-    z = clf.predict(img)
-    print(z)
+    data_processor = DataProcessor(load_dir = './dataset1-raw/', save_dir = './dataset1-processed/', img_height = 28, img_width = 28)
+    data_processor.data_process(is_all=False)
+    (X, y) = data_processor.data_load()
+    z = clf.predict(X)
+    # output the result
+    for i in range(len(y)):
+        print(f"The predicted value: {z[i]} \n The true value: {y[i]}")
+    accuracy = np.sum(z == y) / len(y)
+    print(f"Accuracy: {accuracy}")
     end = datetime.now()
     # print(accuracy)
     print(end - start)
