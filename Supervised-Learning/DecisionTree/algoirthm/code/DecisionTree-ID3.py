@@ -154,13 +154,18 @@ def main():
     clf = DecisionTree()
     clf.fit(x_train, y_train)
     # 4. predict and score
-    accuracy = clf.score(x_test, y_test)
+    accuracy = clf.score(x_train, y_train)
     # 5. draw this tree
     # plt.figure(figsize=(10,10))
     # plt.title('sklearn-DecisionTree')
     # tree.plot_tree(clf)
     # plt.savefig('../img/fig1.png')
+    clf1 = tree.DecisionTreeClassifier(criterion='entropy')
+    clf1.fit(x_train, y_train)
+    # 4. predict and score
+    accuracy1 = clf1.score(x_train, y_train)
     print(accuracy)
+    print(accuracy1)
 if __name__ == "__main__":
     main()
         
