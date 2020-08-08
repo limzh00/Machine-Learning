@@ -33,8 +33,13 @@ class DecisionTree(object):
         # 2. entropy
         return -np.sum(P * np.log2(P))
         
-    def __build(self, node, X):
-        pass
+    def __build(self, node, samples):
+        # iterate dimensions, find the best one
+        for i in range(self.dim):
+            # -- put samples in order on dim
+            self.samples = self.samples.tolist().sort(key = lambda x: x[i])
+            self.samples = np.array(self.samples) # maintain np.array
+            
     def fit(self, X, y):
         '''fit the trained data'''
         # it is required that X and y are vector or just an instance of data
