@@ -18,18 +18,25 @@ class Node(object):
         self.visited = visited
 
 class kdTree(object):
-    def __init__(self):
+    def __init__(self, n_neighbors = 5):
         self.root = Node(r = 0)
         self.X = None
         self.y = None
         self.samples = None
         self.dim = None
+        self.neighbors = [0] * n_neighbors
     def __distance(self, x, p):
         return np.power(np.sum((x - p)**self.dim), 1 / self.dim)
     def __search(self, node, p):
+        if p[node.r] > node.feature[node.r]:
+            if node.r_node is None: return node
+            return self.__search(node.r_node, p)
+        else:
+            if node.l_node is None: return node
+            return self.__search(node.r_node, p)
         
     def __predict_point(self, p):
-        pass
+        
 
     def __build(self, node, X):
         X = X.tolist()
@@ -42,8 +49,10 @@ class kdTree(object):
         if len(X[len(X)//2 + 1 : ]) != 0:
             node.r_node = Node(father = node, r = (node.r + 1) % self.dim)
             self.__build(node.e_node, X[len(X)//2 + 1:])
+
     def fit(self, X, y):
         self.samples = np.c_[X, y]
+        self.samples = np.c_[self.samples, np.zeros(len(self.samples))]
         self.X = X
         self.y = y
         self.dim = len(y)
