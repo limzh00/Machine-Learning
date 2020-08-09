@@ -89,10 +89,10 @@ class DecisionTree(object):
                     node.is_continuous = is_continuous
                     node.div = i   
 
-        if len(sub1) != 0 and self.__cal_entropy(sub1) > 1e-1:
+        if sub1 is not None and len(sub1) != 0:
             node.l_node = Node(father = node)
             self.__build(node.l_node, sub1)
-        if len(sub2) != 0 and self.__cal_entropy(sub2) > 1e-1:
+        if sub2 is not None and len(sub2) != 0:
             node.r_node = Node(father = node)
             self.__build(node.r_node, sub2)
 
@@ -108,7 +108,7 @@ class DecisionTree(object):
                 if x[node.div] == node.value: node = node.l_node
                 else: node = node.r_node
             # if node == None, it means we have reached the end
-            if node is None:
+            if node is None or node.is_continuous is None:
                 return res
 
     def fit(self, X, y):
@@ -165,7 +165,6 @@ def main():
     # 4. predict and score
     accuracy1 = clf1.score(x_train, y_train)
     print(accuracy)
-    print(accuracy1)
 if __name__ == "__main__":
     main()
         
