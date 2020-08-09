@@ -1,5 +1,5 @@
 from kdTree import kdTree
-
+import numpy as np
 class KNeighborsClassifier_kdTree(object):
     def __init__(self, n_neighbors, weights = 'distance'):
         self.samples = None

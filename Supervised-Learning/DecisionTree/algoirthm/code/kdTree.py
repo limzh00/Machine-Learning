@@ -28,7 +28,7 @@ class kdTree(object):
         self.K = n_neighbors
         
     def __distance(self, x, p):
-        return np.power(np.sum((x[:-2] - p)**self.dim), 1 / self.dim)
+        return np.power(np.sum((x[:-2] - p)**2), 1 / self.dim)
     def __search(self, node, p):
         if p[node.r] > node.feature[node.r]:
             if node.r_node is None: return node
@@ -53,6 +53,8 @@ class kdTree(object):
         else:
             self.neighbors.sort(key = lambda x: x[-1])
             if self.neighbors[-1][-1] <= abs(node.feature[node.r] - p[node.r]):
+                if node.father is not None and node.father.visited is not True:
+                    self.__predict_point(node.father, p)
                 node.visited = False
                 return 
             else:
@@ -90,7 +92,7 @@ class kdTree(object):
         for i, p in enumerate(tqdm(P)):
             self.__predict_point(self.__search(self.root, p), p)
             res[i] = Counter(np.array(self.neighbors)[:,-2]).most_common(1)[0][0]
-            print(res[i])
+            self.neighbors = []
         return res
     def score(self, X, y):
         y_predicted = self.predict(X)
@@ -105,7 +107,7 @@ def main():
     # 2. split X and y -- construct test cases and train cases
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size = 0.2)
     # 3. construct decision tree and fit the data
-    clf = kdTree(10)
+    clf = kdTree(5)
     clf.fit(x_train, y_train)
     # 4. predict and score
     accuracy = clf.score(x_test, y_test)
