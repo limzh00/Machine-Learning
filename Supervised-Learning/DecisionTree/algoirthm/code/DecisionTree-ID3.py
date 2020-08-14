@@ -44,13 +44,16 @@ class DecisionTreeClassifier(object):
         self.n_labels = len(set(y))
         self.__build(self.root, self.X)
     def __extract(self, X):
+        X = np.array(X)
         res = np.zeros(self.n_labels)
-        X = Counter(X.tolist()).most_common()
+        X = Counter(X[:,-1]).most_common()
         for i, j in X:
             res[int(i)] = j
         return res
     def __cal_entropy(self, X):
-        X = Counter(X.tolist()).most_common()
+        X = np.array(X)
+        X = Counter(X[:,-1]).most_common()
+        if not len(X): return 0
         X = np.array(X)[:,-1]
         res = X / np.sum(X)
         return - np.sum(res * np.log2(res))
@@ -69,7 +72,7 @@ class DecisionTreeClassifier(object):
                 sub1_entropy = self.__cal_entropy(X[:j])
                 sub2_entropy = self.__cal_entropy(X[j:])
                 gain = node.entropy - (j / node.n_samples * sub1_entropy + (node.n_samples - j) / node.n_samples * sub2_entropy)
-                val = (tmpX[j] + tmpX[j-1])/2
+                val = (tmpX[j][i] + tmpX[j-1][i])/2
                 memo.append((i,j,val,gain))
         memo.sort(key = lambda x:x[-1])
         dim, j, val , gain = memo[-1]
@@ -84,12 +87,13 @@ class DecisionTreeClassifier(object):
         if len(sub2):
             node.r_node = Node(father = node)
             self.__build(node.r_node, sub2)
-    def __check(node, p):
-        dim, val = node.split
+    def __check(self,node, p):
+        if node.split is None: return node.label
+        (dim, val) = node.split
         if node.l_node is not None and p[dim] <= val:
-            return self.__check(node.l_node)
+            return self.__check(node.l_node, p)
         elif node.r_node is not None and p[dim] > val:
-            return self.__check(node.r_node)
+            return self.__check(node.r_node, p)
         return node.label
     def __predict_point(self, p):
         return self.__check(self.root, p)
