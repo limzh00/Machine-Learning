@@ -75,8 +75,6 @@ class DecisionTreeClassifier(object):
                 val = (tmpX[j][i] + tmpX[j-1][i])/2
                 memo.append((i,j,val,gain))
         memo.sort(key = lambda x:x[-1])
-        print(memo)
-        print('\n')
         dim, j, val , gain = memo[-1]
         node.split = (dim, val)
         X = X.tolist()
@@ -142,9 +140,6 @@ def main():
     # tree.plot_tree(clf)
     # plt.savefig('../img/fig1.png')
     print(accuracy, accuracy1)
-    clf.plot_tree()
-    tree.plot_tree(clf1)
-    plt.show()
     
 if __name__ == '__main__':
     main()
