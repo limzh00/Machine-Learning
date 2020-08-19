@@ -36,7 +36,10 @@ class LinearRegressionModel(object):
     def predict(self, X):
         return np.dot(X, self.param)
     def score(self, X, y):
-        return self.__loss(X, y, self.param)
+        y_mean = np.mean(y)
+        Var = np.sum((y - y_mean)**2) / (2 * len(y))
+        Rmse = self.__loss(X, y, self.param)
+        return 1 - (Rmse / Var)
 
 def main():
     # generate samples
