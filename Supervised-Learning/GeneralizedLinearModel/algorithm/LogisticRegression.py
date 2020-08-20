@@ -10,13 +10,41 @@ class LogisticRgression_simple(object):
     def __init__(self):
         self.X = None
         self.y = None
+        self.param = None
+    def __MiniBatchGD(self, batch_size = 10, n_iterations = 10000, alpha = 0.1):
+        self.param = np.zeros(len(self.X[0]))
+        # batch_size
+        for _ in tqdm(range(n_iterations)):
+            index = np.random.randint(low = 0, high = len(self.X), size = batch_size)
+            X_batch = self.X[index]
+            y_bacth = self.y[index]
+            # tmp predicted values
+            y_tmp_predicted = self.predict(X_batch)
+            # update param for one iteration
+            for i in range(len(self.param)):
+                self.param[i] -= alpha * np.sum((y_bacth - y_tmp_predicted) * X_batch[:,i])
+        return self.param
+    def __predict_point(self, p):
+        eta = np.dot(self.param, p)
+        p = 1 / (1 + np.exp(-eta))
+        if p >= 0.5: return 1
+        return 0
+    def __loss(self)
     def fit(self, X, y):
         self.X = X
         self.y = y
+        assert len(X) == len(y) and len(X)
+        self.param = self.__MiniBatchGD()
+        print("**********TRAINING FINISHED**********")
     def predict(self, P):
-        pass
+        P = np.array(P)
+        res = np.zeros(len(P))
+        for i, p in enumerate(P):
+            res[i] = self.__predict_point(p)
+        return res
     def score(self, X, y):
-        return 1
+        y_predicted = self.predict(X)
+        return np.sum(y_predicted == y) / len(y)
 
 def main():
     X, y = samples_generator.make_classification(n_samples = 10000, n_features = 4)
