@@ -22,7 +22,7 @@ class LogisticRgression_simple(object):
             y_tmp_predicted = self.__predict_original_p(X_batch)
             # update param for one iteration
             for i in range(len(self.param)):
-                self.param[i] -= alpha * np.sum((y_tmp_predicted - y_bacth) * X_batch[:,i])
+                self.param[i] -= alpha * np.sum((y_tmp_predicted - y_bacth) * X_batch[:,i]) / batch_size
             # print(self.__loss(self.X, self.y))
         return self.param
     def __predict_point(self, p):

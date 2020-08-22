@@ -22,7 +22,7 @@ class LinearRegressionModel(object):
             # tmp predicted values
             y_tmp_predicted = self.predict(X_batch)
             for i in range(len(self.param)):
-                self.param[i] -= alpha * np.sum((y_tmp_predicted - y_batch) * X_batch[:,i])            
+                self.param[i] -= alpha * np.sum((y_tmp_predicted - y_batch) * X_batch[:,i])  / batch_size          
         return self.param
     def __loss(self, X, y, param):
         y_predicted = np.dot(X, param)
