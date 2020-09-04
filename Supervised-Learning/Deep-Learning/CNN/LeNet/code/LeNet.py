@@ -7,6 +7,7 @@ import scipy as sp
 import matplotlib.pyplot as plt
 from keras.datasets import mnist
 from keras.utils import to_categorical
+import numpy
 
 def download_mnist():
     train_X, train_y = mnist.load_data()[0]
@@ -14,9 +15,9 @@ def download_mnist():
     train_X = train_X.astype('float32')
     train_X = train_X / 255
     train_y = to_categorical(train_y, 10)
-
+    print(train_X)
 download_mnist()
-
+print(1)
 
 
 
